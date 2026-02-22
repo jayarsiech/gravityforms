@@ -1,0 +1,107 @@
+// کرون جاب به همراه پرچم گذاری
+<?php
+add_action("gform_after_submission_76", "add_two_days_arzesh_date", 10, 2);
+function add_two_days_arzesh_date($entry, $form){
+    $entry_id = $entry['id'];
+    $user_id = rgar($entry, 'created_by');
+    $entry_date = current_time('mysql');
+       // اضافه کردن 2 روز به تاریخ
+    $day1_date = date_create($entry_date);
+    $day3_date = date_create($entry_date);
+    $day6_date = date_create($entry_date);
+    $day15_date = date_create($entry_date);
+    $day30_date = date_create($entry_date);
+    
+    date_add($day1_date, date_interval_create_from_date_string('1 days'));
+    $updated_date_1day = date_format($day1_date, 'Y-m-d H:i:s');
+    
+    date_add($day3_date, date_interval_create_from_date_string('3 days'));
+    $updated_date_3day = date_format($day3_date, 'Y-m-d H:i:s');
+    
+    date_add($day6_date, date_interval_create_from_date_string('6 days'));
+    $updated_date_6day = date_format($day6_date, 'Y-m-d H:i:s');
+    
+    date_add($day15_date, date_interval_create_from_date_string('15 days'));
+    $updated_date_15day = date_format($day15_date, 'Y-m-d H:i:s');
+    
+    date_add($day30_date, date_interval_create_from_date_string('30 days'));
+    $updated_date_30day = date_format($day30_date, 'Y-m-d H:i:s');
+    
+    
+    // ذخیره تاریخ جدید به عنوان user meta با کلید "next_check_date"
+    update_user_meta($user_id, '1day_check_date_arzesh', $updated_date_1day);
+    update_user_meta($user_id, '3day_check_date_arzesh', $updated_date_3day);
+    update_user_meta($user_id, '6day_check_date_arzesh', $updated_date_6day);
+    update_user_meta($user_id, '15day_check_date_arzesh', $updated_date_15day);
+    update_user_meta($user_id, '30day_check_date_arzesh', $updated_date_30day);    
+}
+//1day
+function schedule_arzesh_check_1day() {
+    if (!wp_next_scheduled('arzesh_check_event_hook_1day')) {
+        wp_schedule_event(time(), 'daily', 'arzesh_check_event_hook_1day');
+    }
+}
+
+function arzesh_check_event_action_1day() {
+    global $wpdb;
+    $users_to_check = get_users(array(
+        'meta_query' => array(
+            array(
+                'key'     => '1day_check_date_arzesh',
+                'compare' => '<=',
+                'value'   => current_time('mysql'),
+                'type'    => 'DATETIME',
+            ),
+        ),
+    ));
+
+    foreach ($users_to_check as $user) {
+        $user_id = $user->ID;
+        $mobile_karbar = get_user_meta($user_id,'digits_phone',true);
+        $arzesh_meta = get_user_meta($user_id, 'arzeshha', true);
+        $tarikh_meta_user1 = get_user_meta($user_id, '1day_check_date_arzesh', true);
+        $tarikh_meta_user3 = get_user_meta($user_id, '3day_check_date_arzesh', true);
+        $tarikh_meta_user6 = get_user_meta($user_id, '6day_check_date_arzesh', true);
+        $tarikh_meta_user15 = get_user_meta($user_id, '15day_check_date_arzesh', true);
+        $tarikh_meta_user30 = get_user_meta($user_id, '30day_check_date_arzesh', true);
+        $estedadyabi_laghv = get_user_meta($user_id, 'estedadyabi_laghv', true); 
+        $peygham_auto = "مرحله آزمون ارزش های فردی از فرآیند استعدادیابی شما باز شد
+POIAN.IR";
+        if (!$arzesh_meta && !$estedadyabi_laghv) {
+                        // ارسال پیامک
+            $url = "https://ippanel.com/services.jspd";
+            $message = $mobile_karbar;
+            $param = array(
+                'uname' => 'username',
+                'pass' => 'password',
+                'from' => '3000000',
+                'message' => 'مرحله آزمون ارزش های فردی از فرآیند استعدادیابی شما باز شد
+POIAN.IR
+',
+                'to' => $mobile_karbar,
+                'op' => 'send'
+            );
+            $handler = curl_init($url);
+            curl_setopt($handler, CURLOPT_CUSTOMREQUEST, "POST");
+            curl_setopt($handler, CURLOPT_POSTFIELDS, $param);
+            curl_setopt($handler, CURLOPT_RETURNTRANSFER, true);
+            $response = curl_exec($handler);
+            $response = json_decode($response);
+            $res_code = $response[0];
+            $res_data = $response[1];
+            // تغییر مقدار متغیر برای نشان دادن ارسال پیامک
+            delete_user_meta ($user_id, '1day_check_date_arzesh', $tarikh_meta_user1);      
+        } else {
+            error_log("User with ID $user_id does have arzesh meta1.");
+            delete_user_meta($user_id, '1day_check_date_arzesh', $tarikh_meta_user1);
+            delete_user_meta($user_id, '3day_check_date_arzesh', $tarikh_meta_user3);
+            delete_user_meta($user_id, '6day_check_date_arzesh', $tarikh_meta_user6);
+            delete_user_meta($user_id, '15day_check_date_arzesh', $tarikh_meta_user15);
+            delete_user_meta($user_id, '30day_check_date_arzesh', $tarikh_meta_user30);
+
+        }
+    }
+}
+
+add_action('after_setup_theme', 'schedule_arzesh_check_1day');
+add_action('arzesh_check_event_hook_1day', 'arzesh_check_event_action_1day');
