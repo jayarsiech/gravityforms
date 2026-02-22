@@ -1,0 +1,21 @@
+<?php
+add_action("gform_after_submission_12", "bargozarimada", 10, 2);
+function bargozarimada($entry, $form){
+        $current_meta_value = get_user_meta(get_current_user_id(), 'bargozarimada', true);
+        $newDate_eng = current_time('mysql');
+        
+        $value =$_POST["input_42"];
+        $formatted_value = implode('/', $value);
+       
+             // تبدیل تاریخ شمسی به میلادی
+    list($year, $month, $day) = explode('/', $formatted_value);
+    $gregorian_date = jalali_to_gregorian($year, $month, $day); // تبدیل به میلادی
+    $formatted_gregorian_date = sprintf('%04d-%02d-%02d', $gregorian_date[0], $gregorian_date[1], $gregorian_date[2]);
+        
+    if (!$current_meta_value){
+        update_user_meta(get_current_user_id(), 'bargozarimada', 1);
+        update_user_meta(get_current_user_id(), 'date_madarek_eng', $newDate_eng);
+        update_user_meta(get_current_user_id(), 'tarikhtavalod_gregorian', $formatted_gregorian_date);
+    }
+}
+?>
