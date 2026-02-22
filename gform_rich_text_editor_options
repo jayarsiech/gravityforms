@@ -1,0 +1,16 @@
+// نوشتن مطلب با گراویتی فرمز و نمایش دکمه آپلود
+<?php
+add_filter( 'gform_rich_text_editor_options', 'show_media_button', 10, 4 );
+function show_media_button( $editor_settings, $field_object, $form, $entry ) {
+    $forms = $form['fields'];
+    foreach ($forms as $formha){
+         $formids = $formha['formId'];
+         if ($formids==52) {
+             $editor_settings['media_buttons'] = true;
+             $editor_settings['quicktags'] = true;
+             return $editor_settings;
+            
+         }
+    }
+}
+?>
