@@ -1,4 +1,6 @@
 // ساخت دامنه اختصاصی یا یوزر نیم اختصاصی با گراویتی فرمز
+
+
 <?php
 add_filter( 'gform_field_validation_53_2', 'check_domain', 10, 4 );
 function check_domain( $result, $value, $form, $field ) {
@@ -17,6 +19,17 @@ $total_count     = 0;
             $result['message'] = 'این نام قبلا ثبت شده است';
         }
     }
+    return $result;
+}
+
+add_filter( 'gform_field_validation_53_2', 'nam_domain', 10, 4 );
+function nam_domain( $result, $value, $form, $field ) {
+  
+     if( ! preg_match('/^[a-z0-9]+$/i', $value ) ) {
+            $result['is_valid'] = false;
+            $result['message'] = 'از حروف انگلیسی استفاده کنید و از (.  @ / _  - و فاصله) بپرهیزید';
+        }
+   
     return $result;
 }
 ?>
