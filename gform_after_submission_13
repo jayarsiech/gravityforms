@@ -1,0 +1,10 @@
+// بارگزاری در تیبل یوزرمتا با سابمیت کردن فرم گراویتی فرمز
+<?php
+add_action("gform_after_submission_13", "baraks", 10, 2);
+function baraks($entry, $form){
+    $current_meta_value = get_user_meta(get_current_user_id(), 'baraks', true);
+    if (!$current_meta_value){
+        update_user_meta(get_current_user_id(), 'baraks', 1);
+    }
+}
+?>
