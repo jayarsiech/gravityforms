@@ -1,5 +1,14 @@
 <!-- بعد از ویرایش فرمز یا به هر نحوی آپدیت اینا ذخیره بشوند در دیتابیس با این هوک -->
 <?php
+/**
+ * Plugin Name: Gravity Forms User Meta Updater
+ * Description: به‌روزرسانی خودکار پروفایل کاربر پس از ویرایش ورودی در گراویتی فرم به همراه تبدیل تاریخ شمسی.
+ * Version: 1.0.0
+ * Author: jayarsiech
+ * Author URI: https://github.com/YourUsername
+ * License: GPL2
+ * * این کد برای فرم شماره 12 تنظیم شده و فیلدهای متای کاربر را با مقادیر فرم همگام می‌کند.
+ */
 add_action("gform_after_update_entry_12", "update_madarek_bargozari", 10, 2);
 function update_madarek_bargozari($form, $entry_id){
     $entry = GFAPI::get_entry($entry_id);
