@@ -1,0 +1,22 @@
+// ساخت دامنه اختصاصی یا یوزر نیم اختصاصی با گراویتی فرمز
+<?php
+add_filter( 'gform_field_validation_53_2', 'check_domain', 10, 4 );
+function check_domain( $result, $value, $form, $field ) {
+    $formid =  '53';
+$search_criteria = array(
+    'status'        => 'active'
+    );
+$sorting         = array();
+$paging          = array( 'offset' => 0, 'page_size' => 10000000000000000 );
+$total_count     = 0;
+    $entries = GFAPI::get_entries( $formid, $search_criteria, $sorting, $paging, $total_count );
+    
+    foreach ( $entries as $entry ) {
+        if ( strtolower($value) == $entry[2] ){
+            $result['is_valid'] = false;
+            $result['message'] = 'این نام قبلا ثبت شده است';
+        }
+    }
+    return $result;
+}
+?>
