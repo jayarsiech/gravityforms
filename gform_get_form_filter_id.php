@@ -1,6 +1,5 @@
 # بعد از قرار دادن این کد کاربر فقط میتواند یکبار فرم را ارسال کند و بعد از اون با پیغام که در کد به آن اضافه میکنید مواجه میشود
 در کل با این کد میتوانن کاربران فقط یکبار فرم را ارسال کنند
-
 <?php
 add_filter( 'gform_get_form_filter_66', 'yekbar_reserv_moshavere', 10, 2 );
 function yekbar_reserv_moshavere( $form_string, $form ) {
