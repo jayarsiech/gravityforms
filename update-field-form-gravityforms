@@ -1,0 +1,95 @@
+<?php
+function list_nicknames_by_moshaver_button() { 
+    return '<button class="berooz_gozine" id="update-checkboxes">بروزرسانی گزینه‌ها <span class="loader" style="display:none;"></span></button>';
+}
+add_shortcode('list_moshaveran_update_form', 'list_nicknames_by_moshaver_button');
+function list_nicknames_by_moshaver() {
+    global $wpdb; // متغیر دیتابیس وردپرس
+    
+    // نام جدول
+    $table_name = $wpdb->prefix . 'jay_reserv_karshenas';
+    
+    // ساخت کوئری
+    $query = $wpdb->prepare("SELECT nickname FROM $table_name WHERE moshaver = %d", 1);
+    
+    // اجرای کوئری
+    $results = $wpdb->get_results($query);
+    
+    // چک کردن برای وجود نتایج
+    if ($results) {
+        $form_id = 12; // شماره فرم گراویتی
+        
+        // پیدا کردن فیلد چک باکس با ID 13
+        $form = GFAPI::get_form($form_id);
+        $field = GFAPI::get_field($form, 32);
+        
+        // اگر فیلد چک باکس با ID 13 وجود داشته باشد
+        if ($field) {
+            $choices = [];
+            
+            foreach ($results as $result) {
+                $choices[] = [
+                    'text' => $result->nickname,
+                    'value' => $result->nickname,
+                    'isSelected' => false,
+                    'price' => ''
+                ];
+            }
+            
+            // بروزرسانی گزینه‌های فیلد
+            $field->choices = $choices;
+            
+            // بروزرسانی فیلد در فرم
+            $result = GFAPI::update_form($form, $form_id);
+            
+            if ($result === true) {
+                echo 'فرم با موفقیت بروزرسانی شد.';
+            } else {
+                echo 'خطا در بروزرسانی فرم: ' . $result->get_error_message();
+            }
+        } else {
+            echo 'فیلد چک باکس با شناسه 13 یافت نشد.';
+        }
+        
+    } else {
+        echo 'هیچ nickname‌ای با مشاور 1 یافت نشد.';
+    }
+}
+function list_nicknames_by_moshaver_script() {
+global $post;
+if( $post->ID == 4332) {
+    ?>
+    
+    <script type="text/javascript">
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('update-checkboxes').addEventListener('click', function() {
+                 // نمایش لودینگ
+        document.querySelector('.loader').style.display = 'inline-block';
+                // فراخوانی شورتکد برای انجام تغییرات
+                jQuery.ajax({
+                    url: '<?php echo admin_url('admin-ajax.php'); ?>',
+                    type: 'POST',
+                    data: {
+                        'action': 'update_checkboxes_action'
+                    },
+                    success: function(response) {
+                        alert(response);
+                          // مخفی کردن لودینگ پس از دریافت پاسخ
+                document.querySelector('.loader').style.display = 'none';
+                    }
+                });
+            });
+        });
+    </script>
+    <?php
+}
+}
+add_action('wp_footer', 'list_nicknames_by_moshaver_script');
+function update_checkboxes_action_callback() {
+    list_nicknames_by_moshaver();
+    wp_die();
+}
+add_action('wp_ajax_update_checkboxes_action', 'update_checkboxes_action_callback');
+add_action('wp_ajax_nopriv_update_checkboxes_action', 'update_checkboxes_action_callback');
+
+?>
