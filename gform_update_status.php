@@ -13,3 +13,14 @@ function update_status_vaghtmoshavere( $entry_id, $property_value) {
     }
 }
 ?> 
+<?php
+add_action( 'gform_update_status', 'update_status_vaghtmoshavere_jay', 10, 3 );
+function update_status_vaghtmoshavere_jay( $entry_id, $property_value) {
+    $entry = GFAPI::get_entry( $entry_id );
+    if($entry['form_id'] == 66){
+        if ($property_value == 'trash'){
+        delete_user_meta($entry['created_by'],'vaght_moshavere' );
+        }
+    }
+}
+?> 
